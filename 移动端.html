@@ -3,6 +3,7 @@
 
 	<head>
 		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=0.5,maximum-scale=0.5,user-scalable=no" />
 		<title></title>
 		<style type="text/css">
 			* {
@@ -11,12 +12,11 @@
 			}
 			
 			#ball {
-				width: 80px;
-				height: 80px;
-				background: red;
+				width: 120px;
+				height: 120px;
 				position: absolute;
 				left: 30%;
-				top: 100px;
+				bottom: 0;
 				cursor: default;
 				border-radius: 50%;
 			}
@@ -32,20 +32,27 @@
 			var timer = null;
 			var maxY = document.documentElement.clientHeight - ball.offsetHeight;
 			var maxX = document.documentElement.clientWidth - ball.offsetWidth;
+			var lastX = 0;
+			var lastY = 0;
+			var clickX = null;
+			var clickY = null;
+			window.onload = ball_color();
 			
-		
+			/*阻止移动端页面滚动*/
+			document.addEventListener("touchmove", function(e) {
+				e.preventDefault();
+			}, false);
 			
+
 			ball.ontouchstart = function(e) {
-				var e = e || window.event;
+				var e = e.touches[0];
 				ball.style.background = "green";
-				var clickX = e.clientX - ball.offsetLeft;
-				var clickY = e.clientY - ball.offsetTop;
+				clickX = e.pageX - ball.offsetLeft;
+				clickY = e.pageY - ball.offsetTop;
 				document.ontouchmove = function(e) {
-					var e = e || window.event;
-					speedX = e.movementX;
-					speedY = e.movementY;
-					var x = e.clientX - clickX;
-					var y = e.clientY - clickY;
+					var e = e.touches[0];
+					var x = e.pageX - clickX;
+					var y = e.pageY - clickY;
 					if(y >= maxY) {
 						y = maxY;
 					}
@@ -58,13 +65,20 @@
 					if(x <= 0) {
 						x = 0;
 					}
+
+					speedX = x - lastX;
+					speedY = y - lastY;
+
+					lastX = x;
+					lastY = y;
+
 					ball.style.top = y + "px";
 					ball.style.left = x + "px";
 				}
+
 			}
-			
 			ball.ontouchend = function() {
-				ball.ontouchmove = null;
+				document.ontouchmove = null;
 				move();
 			}
 
@@ -72,25 +86,36 @@
 				clearInterval(timer);
 				timer = setInterval(function() {
 					speedY += 1;
-					console.log(speedX);
-					console.log(speedY);
 					var y = ball.offsetTop + speedY;
 					var x = ball.offsetLeft + speedX;
 					if(y >= maxY) {
 						y = maxY;
+						if(Math.abs(speedY) != 1 && Math.abs(speedX) != 0) {
+							ball_color();
+						}
+						if(Math.abs(speedY) != 1 && Math.abs(speedX) == 0){
+							ball_color();
+						}
 						speedY *= -0.8;
 						speedX *= 0.95;
 					}
 					if(y <= 0) {
 						y = 0;
+						ball_color();
 						speedY *= -0.8;
 					}
 					if(x >= maxX) {
 						x = maxX;
+						if(Math.abs(speedX) != 0 && Math.abs(speedY) != 0) {
+							ball_color();
+						}
 						speedX *= -0.8;
 					}
 					if(x <= 0) {
 						x = 0;
+						if(Math.abs(speedX) != 0 && Math.abs(speedY) != 0) {
+							ball_color();
+						}
 						speedX *= -0.8;
 					}
 					if(Math.abs(speedY) < 1) {
@@ -106,6 +131,12 @@
 					ball.style.left = x + "px";
 				}, 15);
 
+			}
+			function rand(min, max) {
+				return parseInt(Math.random() * (max - min + 1) + min);
+			}
+			function ball_color() {
+				ball.style.background = "rgb(" + rand(0, 255) + ", " + rand(0, 255) + ", " + rand(0, 255) + ")";
 			}
 		</script>
 	</body>
