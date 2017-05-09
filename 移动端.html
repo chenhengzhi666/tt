@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			* {
+				margin: 0;
+				padding: 0;
+			}
+			
+			#ball {
+				width: 80px;
+				height: 80px;
+				background: red;
+				position: absolute;
+				left: 30%;
+				top: 100px;
+				cursor: default;
+				border-radius: 50%;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="ball"></div>
+		<script type="text/javascript">
+			var ball = document.getElementById("ball");
+			var speedX = 30;
+			var speedY = 0;
+			var timer = null;
+			var maxY = document.documentElement.clientHeight - ball.offsetHeight;
+			var maxX = document.documentElement.clientWidth - ball.offsetWidth;
+			
+		
+			
+			ball.ontouchstart = function(e) {
+				var e = e || window.event;
+				ball.style.background = "green";
+				var clickX = e.clientX - ball.offsetLeft;
+				var clickY = e.clientY - ball.offsetTop;
+				document.ontouchmove = function(e) {
+					var e = e || window.event;
+					speedX = e.movementX;
+					speedY = e.movementY;
+					var x = e.clientX - clickX;
+					var y = e.clientY - clickY;
+					if(y >= maxY) {
+						y = maxY;
+					}
+					if(y <= 0) {
+						y = 0;
+					}
+					if(x >= maxX) {
+						x = maxX;
+					}
+					if(x <= 0) {
+						x = 0;
+					}
+					ball.style.top = y + "px";
+					ball.style.left = x + "px";
+				}
+			}
+			
+			ball.ontouchend = function() {
+				ball.ontouchmove = null;
+				move();
+			}
+
+			function move() {
+				clearInterval(timer);
+				timer = setInterval(function() {
+					speedY += 1;
+					console.log(speedX);
+					console.log(speedY);
+					var y = ball.offsetTop + speedY;
+					var x = ball.offsetLeft + speedX;
+					if(y >= maxY) {
+						y = maxY;
+						speedY *= -0.8;
+						speedX *= 0.95;
+					}
+					if(y <= 0) {
+						y = 0;
+						speedY *= -0.8;
+					}
+					if(x >= maxX) {
+						x = maxX;
+						speedX *= -0.8;
+					}
+					if(x <= 0) {
+						x = 0;
+						speedX *= -0.8;
+					}
+					if(Math.abs(speedY) < 1) {
+						speedY = 0;
+					}
+					if(Math.abs(speedX) < 1) {
+						speedX = 0;
+					}
+					if(speedY == 0 && speedX == 0 && y == maxY) {
+						clearInterval(timer);
+					}
+					ball.style.top = y + "px";
+					ball.style.left = x + "px";
+				}, 15);
+
+			}
+		</script>
+	</body>
+
+</html>
